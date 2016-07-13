@@ -27,6 +27,19 @@ function [f,g] = softmax_regression(theta, X,y)
   %        Before returning g, make sure you form it back into a vector with g=g(:);
   %
 %%% YOUR CODE HERE %%%
-  
+  V= [exp(theta' * X) ; ones(1,m)];
+  V_colsum= sum(V,1);
+  h= bsxfun (@rdivide, V, V_colsum); % devide V by it's columnsum
+
+  % Suppose we have a matrix A and we want to extract a single element from each row, where the column of the element to be extracted from row i is storedA in y(i), where y is a row vector.
+  A=h';
+  index=sub2ind(size(A), 1:size(A,1), y);
+  h_index = A(index)';
+  f= -sum(log(h_index));
+  index_y = zeros(m,num_classes);
+  index_y(index)=1;
+  index_y= index_y(:,1:(num_classes-1));
+  h= h(1:(num_classes-1),:);
+  g= -X* (index_y-h');
   g=g(:); % make gradient a vector for minFunc
 
