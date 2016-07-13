@@ -21,4 +21,9 @@ function [f,g] = linear_regression(theta, X,y)
   %        the examples in X and adding up the gradient for each example.  Store the
   %        computed gradient in 'g'.
   
-%%% YOUR CODE HERE %%%
+%%% YOUR CODE HERE %%
+for j=1:m
+    f=f+1/2*(theta'*X(:,j)-y(j))^2;
+    g=g+X(:,j)*(theta'*X(:,j)-y(j));
+end
+
