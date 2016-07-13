@@ -16,7 +16,8 @@ function [opttheta] = minFuncSGD(funObj,theta,data,labels,...
 %  opttheta   -  optimized parameter vector
 %
 % Options (* required)
-%  epochs*     - number of epochs through data
+%  epochs*     - number of epochs thr
+ough data
 %  alpha*      - initial learning rate
 %  minibatch*  - size of minibatch
 %  momentum    - momentum constant, defualts to 0.9

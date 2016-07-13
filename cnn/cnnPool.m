@@ -31,5 +31,14 @@ pooledFeatures = zeros(convolvedDim / poolDim, ...
 
 %%% YOUR CODE HERE %%%
 
+pooledFilter=1/poolDim^2*ones(poolDim,poolDim);
+for imageNum=1:numImages
+    for filterNum=1:numFilters
+        convolvedFeature=convolvedFeatures(:,:,filterNum,imageNum);
+        pooledFeature=conv2(convolvedFeature,pooledFilter,'valid');
+        pooledFeature=pooledFeature(1:poolDim:end,1:poolDim:end);
+        pooledFeatures(:,:,filterNum,imageNum)=pooledFeature;
+    end
+end
 end
 

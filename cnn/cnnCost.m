@@ -88,6 +88,17 @@ activationsPooled = reshape(activationsPooled,[],numImages);
 probs = zeros(numClasses,numImages);
 
 %%% YOUR CODE HERE %%%
+delta_softmax=-(labels_full-probs);
+delta_pooled=Wd'*delta_softmax;
+delta_pooled=reshape(delta_pooled,[],outputDim,numFilters,numImages);
+delta_unpooled=zeros(outputDim*poolDim,outputDim*poolDim,numFilters,numImages);
+for imageNum=1:numImages
+    for filterNum=1:numFilters
+        delta_unpooled(:,:,filterNum,imageNum)=(1/poolDim^2)*...
+            kron(delta_pooled(:,:,filterNum,imageNum),ones(poolDim,poolDim)); % upsampling
+    end
+end
+delta_conv=delta_unpooled.*activations.*(1-activations);
 
 %%======================================================================
 %% STEP 1b: Calculate Cost
@@ -118,7 +129,17 @@ end;
 %  quickly.
 
 %%% YOUR CODE HERE %%%
-
+delta_softmax=-(labels_full-probs);
+delta_pooled=Wd'*delta_softmax;
+delta_pooled=reshape(delta_pooled,[],outputDim,numFilters,numImages);
+delta_unpooled=zeros(outputDim*poolDim,outputDim*poolDim,numFilters,numImages);
+for imageNum=1:numImages
+    for filterNum=1:numFilters
+        delta_unpooled(:,:,filterNum,imageNum)=(1/poolDim^2)*...
+            kron(delta_pooled(:,:,filterNum,imageNum),ones(poolDim,poolDim)); % upsampling
+    end
+end
+delta_conv=delta_unpooled.*activations.*(1-activations);
 %%======================================================================
 %% STEP 1d: Gradient Calculation
 %  After backpropagating the errors above, we can use them to calculate the
@@ -128,7 +149,18 @@ end;
 %  for that filter with each image and aggregate over images.
 
 %%% YOUR CODE HERE %%%
-
+Wd_grad=Wd_grad+1/numImages*delta_softmax*reshape(activationsPooled,[],numImages)';
+bd_grad=bd_grad+1/numImages*sum(delta_softmax,2);
+for filterNum=1:numFilters
+    for imageNum=1:numImages
+        Wc_grad(:,:,filterNum,:)=Wc_grad(:,:,filterNum,:)+...
+            conv2(images(:,:,imageNum),rot90(delta_conv(:,:,filterNum,imageNum),2),'valid');
+    end
+    Wc_grad(:,:,filterNum,:)=1/numImages*Wc_grad(:,:,filterNum,:);
+end
+for filterNum = 1 : numFilters
+    bc_grad(filterNum) = 1/numImages*sum(sum(sum(delta_conv(:,:,filterNum,:))));
+end
 %% Unroll gradient into grad vector for minFunc
 grad = [Wc_grad(:) ; Wd_grad(:) ; bc_grad(:) ; bd_grad(:)];
 
